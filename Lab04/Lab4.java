@@ -5,6 +5,10 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,15 +114,42 @@ public class Lab4 extends JFrame {
 
     public Lab4() {
         products = new ArrayList<>();
-        products.add(new Product("4DFWD PULSE SHOES", "This product is excluded fr...", "Adidas", "$160.00", "images/img1.png"));
-        products.add(new Product("FORUM MID SHOES", "This product is excluded fr...", "Adidas", "$100.00", "images/img2.png"));
-        products.add(new Product("SUPERNOVA SHOES", "NMD City Stock 2", "Adidas", "$150.00", "images/img3.png"));
-        products.add(new Product("Adidas", "NMD City Stock 2", "Adidas", "$160.00", "images/img4.png"));
-        products.add(new Product("Adidas", "NMD City Stock 2", "Adidas", "$120.00", "images/img5.png"));
-        products.add(new Product("4DFWD PULSE SHOES", "This product is excluded fr...", "Adidas", "$160.00", "images/img6.png"));
-        products.add(new Product("4DFWD PULSE SHOES", "This product is excluded fr...", "Adidas", "$160.00", "images/img1.png"));
-        products.add(new Product("FORUM MID SHOES", "This product is excluded fr...", "Adidas", "$100.00", "images/img2.png"));
         
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8080/api/products"))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String json = response.body();
+
+            if (json != null && json.length() > 2) {
+                json = json.substring(1, json.length() - 1);
+                String[] items = json.split("\\},\\{");
+                for (String item : items) {
+                    item = item.replace("{", "").replace("}", "");
+                    String name = extractJsonValue(item, "name");
+                    String subtitle = extractJsonValue(item, "subtitle");
+                    String brand = extractJsonValue(item, "brand");
+                    String price = extractJsonValue(item, "price");
+                    String imagePath = extractJsonValue(item, "imagePath");
+                    
+                    if (imagePath.isEmpty()) {
+                        imagePath = extractJsonValue(item, "image_path");
+                    }
+                    
+                    products.add(new Product(name, subtitle, brand, price, imagePath));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (products.isEmpty()) {
+            products.add(new Product("No Data", "No API Connection", "None", "$0.00", "images/img1.png"));
+        }
+
         setTitle("Product Store");
         setSize(1100, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -137,6 +168,16 @@ public class Lab4 extends JFrame {
         add(splitPane, BorderLayout.CENTER);
     }
 
+    private String extractJsonValue(String jsonItem, String key) {
+        String searchKey = "\"" + key + "\":\"";
+        int start = jsonItem.indexOf(searchKey);
+        if (start == -1) return "";
+        start += searchKey.length();
+        int end = jsonItem.indexOf("\"", start);
+        if (end == -1) return "";
+        return jsonItem.substring(start, end);
+    }
+
     private void setupLeftPanel() {
         leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -144,7 +185,19 @@ public class Lab4 extends JFrame {
         leftPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         imagePanel = new FadeImagePanel();
-        imagePanel.setImage(new ImageIcon(getClass().getResource(currentProduct.imagePath)).getImage());
+        
+        java.net.URL imgUrl = getClass().getResource(currentProduct.imagePath);
+        ImageIcon icon;
+        if (imgUrl != null) {
+            icon = new ImageIcon(imgUrl);
+        } else {
+            icon = new ImageIcon("Lab04/" + currentProduct.imagePath);
+            if (icon.getIconWidth() == -1) {
+                icon = new ImageIcon(currentProduct.imagePath);
+            }
+        }
+        
+        imagePanel.setImage(icon.getImage());
         imagePanel.setPreferredSize(new Dimension(300, 300));
         imagePanel.setMaximumSize(new Dimension(300, 300));
 
@@ -221,7 +274,17 @@ public class Lab4 extends JFrame {
         topInfo.add(Box.createVerticalStrut(5));
         topInfo.add(cSub);
 
-        ImageIcon origIcon = new ImageIcon(getClass().getResource(p.imagePath));
+        java.net.URL imgUrl = getClass().getResource(p.imagePath);
+        ImageIcon origIcon;
+        if (imgUrl != null) {
+            origIcon = new ImageIcon(imgUrl);
+        } else {
+            origIcon = new ImageIcon("Lab04/" + p.imagePath);
+            if (origIcon.getIconWidth() == -1) {
+                origIcon = new ImageIcon(p.imagePath);
+            }
+        }
+        
         Image scaledImg = origIcon.getImage().getScaledInstance(120, 90, Image.SCALE_SMOOTH);
         JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
         imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -264,7 +327,18 @@ public class Lab4 extends JFrame {
         priceLabel.setText(p.price);
         brandLabel.setText(p.brand);
         
-        imagePanel.transitionTo(new ImageIcon(getClass().getResource(p.imagePath)).getImage());
+        java.net.URL imgUrl = getClass().getResource(p.imagePath);
+        ImageIcon icon;
+        if (imgUrl != null) {
+            icon = new ImageIcon(imgUrl);
+        } else {
+            icon = new ImageIcon("Lab04/" + p.imagePath);
+            if (icon.getIconWidth() == -1) {
+                icon = new ImageIcon(p.imagePath);
+            }
+        }
+        
+        imagePanel.transitionTo(icon.getImage());
     }
 
     public static void main(String[] args) {
