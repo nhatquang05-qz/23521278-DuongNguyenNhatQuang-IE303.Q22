@@ -144,7 +144,7 @@ public class Lab4 extends JFrame {
         leftPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         imagePanel = new FadeImagePanel();
-        imagePanel.setImage(new ImageIcon(currentProduct.imagePath).getImage());
+        imagePanel.setImage(new ImageIcon(getClass().getResource(currentProduct.imagePath)).getImage());
         imagePanel.setPreferredSize(new Dimension(300, 300));
         imagePanel.setMaximumSize(new Dimension(300, 300));
 
@@ -221,7 +221,7 @@ public class Lab4 extends JFrame {
         topInfo.add(Box.createVerticalStrut(5));
         topInfo.add(cSub);
 
-        ImageIcon origIcon = new ImageIcon(p.imagePath);
+        ImageIcon origIcon = new ImageIcon(getClass().getResource(p.imagePath));
         Image scaledImg = origIcon.getImage().getScaledInstance(120, 90, Image.SCALE_SMOOTH);
         JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
         imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -264,7 +264,7 @@ public class Lab4 extends JFrame {
         priceLabel.setText(p.price);
         brandLabel.setText(p.brand);
         
-        imagePanel.transitionTo(new ImageIcon(p.imagePath).getImage());
+        imagePanel.transitionTo(new ImageIcon(getClass().getResource(p.imagePath)).getImage());
     }
 
     public static void main(String[] args) {
