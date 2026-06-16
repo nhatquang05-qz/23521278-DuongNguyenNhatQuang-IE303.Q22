@@ -1,0 +1,21 @@
+CREATE DATABASE ProductStore;
+USE ProductStore;
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    subtitle VARCHAR(255),
+    brand VARCHAR(100),
+    price VARCHAR(50),
+    image_path VARCHAR(255)
+);
+
+INSERT INTO products (name, subtitle, brand, price, image_path) VALUES
+('4DFWD PULSE SHOES', 'This product is excluded fr...', 'Adidas', '$160.00', 'images/img1.png'),
+('FORUM MID SHOES', 'This product is excluded fr...', 'Adidas', '$100.00', 'images/img2.png'),
+('SUPERNOVA SHOES', 'NMD City Stock 2', 'Adidas', '$150.00', 'images/img3.png'),
+('Adidas', 'NMD City Stock 2', 'Adidas', '$160.00', 'images/img4.png'),
+('Adidas', 'NMD City Stock 2', 'Adidas', '$120.00', 'images/img5.png'),
+('4DFWD PULSE SHOES', 'This product is excluded fr...', 'Adidas', '$160.00', 'images/img6.png'),
+('4DFWD PULSE SHOES', 'This product is excluded fr...', 'Adidas', '$160.00', 'images/img1.png'),
+('FORUM MID SHOES', 'This product is excluded fr...', 'Adidas', '$100.00', 'images/img2.png');
